@@ -64,7 +64,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-72 flex-col border-r border-white/10 bg-gradient-to-b from-[#0b1022] via-[#0d1228] to-[#050814] text-white">
+    <aside className="fixed left-0 top-0 flex h-screen w-[260px] flex-col border-r border-[#2d2f52] bg-[#0A0D1C] text-white shadow-2xl">
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-8">
         {/* Logo */}
@@ -83,7 +83,7 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-3">
+        <nav className="space-y-2">
           {menu.map((item) => {
             const Icon = item.icon;
 
@@ -93,10 +93,10 @@ export default function Sidebar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`flex items-center gap-4 rounded-2xl px-5 py-4 transition-all duration-300 ${
+                className={`flex items-center gap-4 rounded-xl px-5 py-3.5 transition-all duration-300 ${
                   active
-                    ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-violet-500/30"
-                    : "hover:bg-white/5"
+? "bg-gradient-to-r from-[#7B2FF7] via-[#B620E0] to-[#FF00C8] text-white shadow-[0_0_35px_rgba(183,0,255,0.35)]"
+: "text-slate-300 hover:bg-[#181C31] hover:text-white"
                 }`}
               >
                 <Icon size={20} />
@@ -111,10 +111,10 @@ export default function Sidebar() {
 
       {/* Bottom Section */}
       <div className="border-t border-white/10 p-6">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-lg">
+        <div className="rounded-[28px] border border-[#2C3154] bg-[#12162A] p-5 backdrop-blur-lg">
           {/* Profile */}
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 text-lg font-bold">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7B2FF7] to-[#4ACBFF] shadow-lg shadow-cyan-500/20">
               P
             </div>
 
@@ -150,7 +150,7 @@ export default function Sidebar() {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-red-500/20 py-3 font-medium text-red-300 transition hover:bg-red-500/30"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5A2030] to-[#6A2435] py-3 font-medium text-red-300 transition hover:from-[#6E273A] hover:to-[#7A2B40]"
           >
             <LogOut size={18} />
             Logout
