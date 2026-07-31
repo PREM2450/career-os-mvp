@@ -1,5 +1,6 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import Navbar from "@/components/dashboard/Navbar";
+
 import WelcomeHero from "@/components/dashboard/WelcomeHero";
 
 import ProgressChart from "@/components/dashboard/ProgressChart";
@@ -21,40 +22,37 @@ export default function DashboardPage() {
         <main className="ml-72 flex-1 overflow-x-hidden">
           <Navbar />
 
-          <div className="space-y-8 p-8">
+          <div className="space-y-6 p-8">
 
-            {/* Welcome Hero */}
+            {/* Hero */}
             <WelcomeHero />
 
-            {/* Progress + Resume + GitHub */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            {/* Main Dashboard */}
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 items-start">
 
-              <div className="xl:col-span-2">
+              {/* Left Side */}
+              <div className="xl:col-span-6">
                 <ProgressChart />
               </div>
 
-              <ResumeTracker />
+              {/* Middle */}
+              <div className="flex flex-col gap-6 xl:col-span-3">
+                <ResumeTracker />
+                <CareerRoadmap />
+              </div>
 
-              <GitHubCard />
+              {/* Right */}
+              <div className="flex flex-col gap-6 xl:col-span-3">
+                <GitHubCard />
+                <LeetCodeCard />
+              </div>
 
             </div>
 
-            {/* Career + LeetCode */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-              <CareerRoadmap />
-
-              <LeetCodeCard />
-
-            </div>
-
-            {/* Activity + Leaderboard */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
+            {/* Bottom */}
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <ActivityHeatmap />
-
               <Leaderboard />
-
             </div>
 
           </div>
