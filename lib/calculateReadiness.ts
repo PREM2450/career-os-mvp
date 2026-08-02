@@ -8,6 +8,9 @@ type ReadinessInput = {
   projectScore?: number;
   communicationScore?: number;
   company?: string;
+
+  graduationYear?: number;
+  graduationMonth?: number;
 };
 
 const companyMultiplier: Record<string, number> = {
@@ -112,10 +115,23 @@ readiness = readiness / totalWeight;
   else if (probability >= 45)
     status = "Average";
 
-  const estimatedMonths = Math.max(
+  const now = new Date();
+
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth() + 1;
+
+let estimatedMonths = 6; // default
+
+if (
+  data.graduationYear !== undefined &&
+  data.graduationMonth !== undefined
+) {
+  estimatedMonths = Math.max(
     1,
-    Math.round((100 - probability) / 10)
+    (data.graduationYear - currentYear) * 12 +
+      (data.graduationMonth - currentMonth)
   );
+}
 
   const strengths: string[] = [];
 const weaknesses: string[] = [];

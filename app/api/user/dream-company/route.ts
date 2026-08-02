@@ -22,14 +22,18 @@ export async function POST(req: NextRequest) {
       process.env.JWT_SECRET!
     ) as { id: string };
 
-    const { dreamCompany, githubUsername } =
-      await req.json();
-
+    const {
+  dreamCompany,
+  githubUsername,
+  graduationYear,
+  graduationMonth,
+} = await req.json();
     const updateData: {
-      dreamCompany?: string;
-      githubUsername?: string;
-    } = {};
-
+  dreamCompany?: string;
+  githubUsername?: string;
+  graduationYear?: number;
+  graduationMonth?: number;
+} = {};
     if (dreamCompany !== undefined) {
       updateData.dreamCompany = dreamCompany.trim();
     }
@@ -38,6 +42,13 @@ export async function POST(req: NextRequest) {
       updateData.githubUsername =
         githubUsername.trim();
     }
+    if (graduationYear !== undefined) {
+  updateData.graduationYear = graduationYear;
+}
+
+if (graduationMonth !== undefined) {
+  updateData.graduationMonth = graduationMonth;
+}
 
     const user = await User.findByIdAndUpdate(
       decoded.id,
@@ -92,16 +103,24 @@ export async function GET(req: NextRequest) {
     ) as { id: string };
 
     const user = await User.findById(decoded.id).select(
-      "dreamCompany githubUsername"
-    );
+  "dreamCompany githubUsername graduationYear graduationMonth"
+)
 
     return NextResponse.json({
-      success: true,
-      dreamCompany:
-        user?.dreamCompany || "",
-      githubUsername:
-        user?.githubUsername || "",
-    });
+  success: true,
+
+  dreamCompany:
+    user?.dreamCompany || "",
+
+  githubUsername:
+    user?.githubUsername || "",
+
+  graduationYear:
+    user?.graduationYear || null,
+
+  graduationMonth:
+    user?.graduationMonth || null,
+});
   } catch (error) {
     console.error(error);
 

@@ -113,6 +113,15 @@ const UserSchema = new Schema(
   type: String,
   default: "",
 },
+graduationYear: {
+  type: Number,
+  default: null,
+},
+
+graduationMonth: {
+  type: Number,
+  default: null,
+},
 
 communicationScore: {
   type: Number,

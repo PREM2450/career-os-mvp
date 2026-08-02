@@ -185,6 +185,27 @@ const readiness = calculateReadiness({
   totalTasks,
   company: user.dreamCompany,
 });
+// Remaining months from latest goal deadline
+let estimatedMonths = readiness.estimatedMonths;
+
+if (goals.length > 0) {
+  const latestGoal = goals.sort(
+    (a, b) =>
+      new Date(b.deadline).getTime() -
+      new Date(a.deadline).getTime()
+  )[0];
+
+  if (latestGoal?.deadline) {
+    const now = new Date();
+    const deadline = new Date(latestGoal.deadline);
+
+    const months =
+      (deadline.getFullYear() - now.getFullYear()) * 12 +
+      (deadline.getMonth() - now.getMonth());
+
+    estimatedMonths = Math.max(1, months);
+  }
+}
     
 
     return NextResponse.json({
@@ -225,7 +246,7 @@ const readiness = calculateReadiness({
     readinessScore: readiness.readiness,
     selectionProbability: readiness.probability,
     readinessStatus: readiness.status,
-    estimatedMonths: readiness.estimatedMonths,
+    estimatedMonths,
 
     // Complete object (future use)
     readiness,
