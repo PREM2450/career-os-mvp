@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         }
       }
     `;
-
+    console.log("Connecting LeetCode:", username);
     const response = await fetch(GRAPHQL_URL, {
       method: "POST",
       headers: {
@@ -82,8 +82,9 @@ export async function POST(req: NextRequest) {
         },
       }),
     });
-
+    console.log("HTTP Status:", response.status);
     const json = await response.json();
+    console.log("LeetCode Response:", JSON.stringify(json, null, 2));
 
     if (!json.data?.matchedUser) {
       return NextResponse.json(
@@ -103,8 +104,8 @@ export async function POST(req: NextRequest) {
       },
       {
         userId: user._id,
-        username,
-        profileUrl: `https://leetcode.com/u/${username}/`,
+        username: json.data.matchedUser.username,
+        profileUrl: `https://leetcode.com/u/${json.data.matchedUser.username}/`,
         lastSynced: new Date(),
       },
       {
@@ -119,16 +120,14 @@ export async function POST(req: NextRequest) {
       data: profile,
     });
   } catch (error) {
-    console.error(error);
+  console.error("ERROR:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Connection failed",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+  return NextResponse.json(
+    {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    },
+    { status: 500 }
+  );
+}
 }

@@ -32,19 +32,27 @@ export async function POST(req: NextRequest) {
 
     const user = await User.findById(decoded.id);
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found" },
-        { status: 404 }
-      );
+if (!user) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "User not found",
+    },
+    {
+      status: 404,
     }
+  );
+}
+
+console.log("USER ID:", user._id.toString());
+
+const profile = await LeetCode.findOne({
+  userId: user._id,
+});
+
+console.log("PROFILE:", profile);
 
     // ---------------- LeetCode Username ----------------
-
-    let profile = await LeetCode.findOne({
-      userId: user._id,
-    });
-
     if (!profile) {
       return NextResponse.json(
         {
@@ -103,7 +111,9 @@ query getUserProfile($username: String!) {
     });
 
     const json = await response.json();
+    console.log("GraphQL Response:");
 console.log(JSON.stringify(json, null, 2));
+
     const data = json.data.matchedUser;
 
     if (!data) {
@@ -149,16 +159,16 @@ const total =
       data: profile,
     });
   } catch (error) {
-    console.error(error);
+  console.error("SYNC ERROR:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Sync failed",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+  return NextResponse.json(
+    {
+      success: false,
+      message: error instanceof Error ? error.message : String(error),
+    },
+    {
+      status: 500,
+    }
+  );
+}
 }
