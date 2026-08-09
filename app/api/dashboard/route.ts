@@ -8,8 +8,8 @@ import Goal from "@/models/Goal";
 import Task from "@/models/Task";
 import Resume from "@/models/Resume";
 
-
 import { calculateReadiness } from "@/lib/calculateReadiness";
+
 export async function GET() {
   try {
     await connectDB();
@@ -56,6 +56,7 @@ export async function GET() {
       );
     }
 
+    // Current User
     const user = await User.findById(userId);
 
     console.log("User:", user);
@@ -71,18 +72,21 @@ export async function GET() {
       );
     }
 
+    // User's Goals
     const goals = await Goal.find({
       userId: user._id,
     });
 
     const goalIds = goals.map((goal) => goal._id);
 
+    // Total Tasks
     const totalTasks = await Task.countDocuments({
       goalId: {
         $in: goalIds,
       },
     });
 
+    // Completed Tasks
     const completedTasks = await Task.countDocuments({
       goalId: {
         $in: goalIds,
@@ -90,168 +94,187 @@ export async function GET() {
       completed: true,
     });
 
+    // Pending Tasks
     const pendingTasks = totalTasks - completedTasks;
-    // Today's Date
-const today = new Date();
-today.setHours(0, 0, 0, 0);
 
-// 7 Days Ago
-const weekAgo = new Date(today);
-weekAgo.setDate(weekAgo.getDate() - 6);
-
-// 30 Days Ago
-const monthAgo = new Date(today);
-monthAgo.setDate(monthAgo.getDate() - 29);
-
-// Today's completed tasks
-const todayCompleted = await Task.countDocuments({
-  goalId: { $in: goalIds },
-  completed: true,
-  completedAt: { $gte: today },
-});
-
-// Weekly completed tasks
-const weeklyCompleted = await Task.countDocuments({
-  goalId: { $in: goalIds },
-  completed: true,
-  completedAt: { $gte: weekAgo },
-});
-
-// Monthly completed tasks
-const monthlyCompleted = await Task.countDocuments({
-  goalId: { $in: goalIds },
-  completed: true,
-  completedAt: { $gte: monthAgo },
-});
-
+    // Completion Rate
     const completionRate =
       totalTasks === 0
         ? 0
         : Math.round((completedTasks / totalTasks) * 100);
-       const weeklyActivity: {
-  day: string;
-  completed: number;
-}[] = [];
-const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-for (let i = 6; i >= 0; i--) {
-  const start = new Date(today);
-  start.setDate(today.getDate() - i);
+    // Today's Date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const end = new Date(start);
-  end.setDate(start.getDate() + 1);
+    // 7 Days Ago
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 6);
 
-  const completed = await Task.countDocuments({
-    goalId: { $in: goalIds },
-    completed: true,
-    completedAt: {
-      $gte: start,
-      $lt: end,
-    },
-  });
+    // 30 Days Ago
+    const monthAgo = new Date(today);
+    monthAgo.setDate(monthAgo.getDate() - 29);
 
-  weeklyActivity.push({
-    day: days[start.getDay()],
-    completed,
-  });
-}
+    // Today's completed tasks
+    const todayCompleted = await Task.countDocuments({
+      goalId: { $in: goalIds },
+      completed: true,
+      completedAt: { $gte: today },
+    });
 
-   // Latest Resume
-const latestResume = await Resume.findOne({
-  userId: user._id,
-}).sort({ createdAt: -1 });
+    // Weekly completed tasks
+    const weeklyCompleted = await Task.countDocuments({
+      goalId: { $in: goalIds },
+      completed: true,
+      completedAt: { $gte: weekAgo },
+    });
 
-const atsScore = latestResume?.atsScore || 0;
+    // Monthly completed tasks
+    const monthlyCompleted = await Task.countDocuments({
+      goalId: { $in: goalIds },
+      completed: true,
+      completedAt: { $gte: monthAgo },
+    });
 
-// XP Required For Next Level
-const nextLevelXP = user.level * 100;
+    // Weekly Activity
+    const weeklyActivity: {
+      day: string;
+      completed: number;
+    }[] = [];
 
-// AI Score
-const aiScore = Math.min(
-  100,
-  Math.round(
-    completionRate * 0.5 +
-      Math.min(user.streak * 5, 25) +
-      Math.min(user.level * 2, 25)
-  )
-);
+    const days = [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+    ];
 
-// Readiness Calculation
-const readiness = calculateReadiness({
-  xp: user.xp,
-  streak: user.streak,
-  atsScore,
-  tasksCompleted: completedTasks,
-  totalTasks,
-  company: user.dreamCompany,
-});
-// Remaining months from latest goal deadline
-let estimatedMonths = readiness.estimatedMonths;
+    for (let i = 6; i >= 0; i--) {
+      const start = new Date(today);
+      start.setDate(today.getDate() - i);
 
-if (goals.length > 0) {
-  const latestGoal = goals.sort(
-    (a, b) =>
-      new Date(b.deadline).getTime() -
-      new Date(a.deadline).getTime()
-  )[0];
+      const end = new Date(start);
+      end.setDate(start.getDate() + 1);
 
-  if (latestGoal?.deadline) {
-    const now = new Date();
-    const deadline = new Date(latestGoal.deadline);
+      const completed = await Task.countDocuments({
+        goalId: { $in: goalIds },
+        completed: true,
+        completedAt: {
+          $gte: start,
+          $lt: end,
+        },
+      });
 
-    const months =
-      (deadline.getFullYear() - now.getFullYear()) * 12 +
-      (deadline.getMonth() - now.getMonth());
+      weeklyActivity.push({
+        day: days[start.getDay()],
+        completed,
+      });
+    }
 
-    estimatedMonths = Math.max(1, months);
-  }
-}
-    
+    // Latest Resume
+    const latestResume = await Resume.findOne({
+      userId: user._id,
+    }).sort({ createdAt: -1 });
 
-    return NextResponse.json({
-  success: true,
-  stats: {
-    // Existing Stats
-    totalGoals: goals.length,
-    totalTasks,
-    completedTasks,
-    pendingTasks,
-    completionRate,
+    const atsScore = latestResume?.atsScore || 0;
 
-    // XP
-    xp: user.xp,
-    level: user.level,
-    xpToNextLevel: nextLevelXP - user.xp,
-
-    // Streak
-    streak: user.streak,
-    longestStreak: user.longestStreak,
-
-    // Daily Stats
-    todayCompleted,
-    weeklyCompleted,
-    monthlyCompleted,
-    weeklyActivity,
+    // XP Required For Next Level
+    const nextLevelXP = user.level * 100;
 
     // AI Score
-    aiScore,
+    const aiScore = Math.min(
+      100,
+      Math.round(
+        completionRate * 0.5 +
+          Math.min(user.streak * 5, 25) +
+          Math.min(user.level * 2, 25)
+      )
+    );
 
-    // Resume
-    atsScore,
+    // Company comes from Goal section
+    const goalCompany =
+      goals.length > 0 ? goals[0].company || "" : "";
 
-    // Dream Company
-    dreamCompany: user.dreamCompany || "",
+    // Readiness Calculation
+    const readiness = calculateReadiness({
+      xp: user.xp,
+      streak: user.streak,
+      atsScore,
+      tasksCompleted: completedTasks,
+      totalTasks,
+      company: goalCompany,
+    });
 
-    // Career Intelligence
-    readinessScore: readiness.readiness,
-    selectionProbability: readiness.probability,
-    readinessStatus: readiness.status,
-    estimatedMonths,
+    // Remaining months from latest goal deadline
+    let estimatedMonths = readiness.estimatedMonths;
 
-    // Complete object (future use)
-    readiness,
-  },
-});
+    if (goals.length > 0) {
+      const latestGoal = goals.sort(
+        (a, b) =>
+          new Date(b.deadline).getTime() -
+          new Date(a.deadline).getTime()
+      )[0];
+
+      if (latestGoal?.deadline) {
+        const now = new Date();
+        const deadline = new Date(latestGoal.deadline);
+
+        const months =
+          (deadline.getFullYear() - now.getFullYear()) * 12 +
+          (deadline.getMonth() - now.getMonth());
+
+        estimatedMonths = Math.max(1, months);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+
+      stats: {
+        // Existing Stats
+        totalGoals: goals.length,
+        totalTasks,
+        completedTasks,
+        pendingTasks,
+        completionRate,
+
+        // XP
+        xp: user.xp,
+        level: user.level,
+        xpToNextLevel: nextLevelXP - user.xp,
+
+        // Streak
+        streak: user.streak,
+        longestStreak: user.longestStreak,
+
+        // Daily Stats
+        todayCompleted,
+        weeklyCompleted,
+        monthlyCompleted,
+        weeklyActivity,
+
+        // AI Score
+        aiScore,
+
+        // Resume
+        atsScore,
+
+        // Company from Goal
+        dreamCompany: goalCompany,
+
+        // Career Intelligence
+        readinessScore: readiness.readiness,
+        selectionProbability: readiness.probability,
+        readinessStatus: readiness.status,
+        estimatedMonths,
+
+        // Complete object
+        readiness,
+      },
+    });
   } catch (error) {
     console.error(error);
 

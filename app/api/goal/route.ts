@@ -30,6 +30,23 @@ export async function POST(req: NextRequest) {
         }
       );
     }
+    const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const selectedDate = new Date(deadline);
+selectedDate.setHours(0, 0, 0, 0);
+
+if (selectedDate < today) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Deadline cannot be in the past.",
+    },
+    {
+      status: 400,
+    }
+  );
+}
 
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;

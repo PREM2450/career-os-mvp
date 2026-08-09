@@ -168,11 +168,12 @@ export default function GoalPage() {
             </label>
 
             <input
-              type="date"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              className="w-full rounded-xl bg-[#101827] p-4 outline-none"
-            />
+  type="date"
+  min={new Date().toISOString().split("T")[0]}
+  value={deadline}
+  onChange={(e) => setDeadline(e.target.value)}
+  className="w-full rounded-xl bg-[#101827] p-4 outline-none"
+/>
           </div>
 
           <div>

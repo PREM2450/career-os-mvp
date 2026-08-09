@@ -49,17 +49,16 @@ export function UserProvider({
     try {
       setLoading(true);
 
-      const res = await fetch("/api/user", {
-        cache: "no-store",
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
+      const res = await fetch("/api/me", {
+  cache: "no-store",
+});
+console.log("ME API STATUS:", res.status);
+if (res.ok) {
+  const data = await res.json();
+  setUser(data);
+} else {
+  setUser(null);
+}
     } catch (error) {
       console.error(error);
       setUser(null);
@@ -68,10 +67,9 @@ export function UserProvider({
     }
   }
 
-  useEffect(() => {
-    refreshUser();
-  }, []);
-
+        useEffect(() => {
+  refreshUser();
+}, []);
   return (
     <UserContext.Provider
       value={{

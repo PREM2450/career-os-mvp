@@ -95,21 +95,7 @@ export default function Navbar() {
       {/* Right */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
 
-        {/* Dream Company */}
-
-        <select
-          value={dreamCompany}
-          onChange={(e) => setDreamCompany(e.target.value)}
-          className="h-11 w-56 rounded-xl border border-slate-700 bg-slate-900 px-4 text-white outline-none focus:border-cyan-500"
-        >
-          <option value="">🎯 Dream Company</option>
-
-          {companies.map((company) => (
-            <option key={company} value={company}>
-              {company}
-            </option>
-          ))}
-        </select>
+        
 
         {/* GitHub */}
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   Home,
   Target,
@@ -44,6 +45,20 @@ const menu = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [user, setUser] = useState<{ name: string } | null>(null);
+  useEffect(() => {
+  const fetchUser = async () => {
+    const res = await fetch("/api/me");
+
+    if (res.ok) {
+     const data = await res.json();
+      setUser(data);
+    }
+  };
+
+  fetchUser();
+}, []);
 
   const handleLogout = async () => {
     try {
@@ -115,14 +130,13 @@ export default function Sidebar() {
           {/* Profile */}
           <div className="flex items-center gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7B2FF7] to-[#4ACBFF] shadow-lg shadow-cyan-500/20">
-              P
+              {user?.name?.charAt(0).toUpperCase() || "U"}
             </div>
 
             <div>
               <h2 className="font-semibold text-white">
-                Prem Kumar
+                  {user?.name || "Loading..."}
               </h2>
-
               <p className="text-xs text-slate-400">
                 Explorer
               </p>
